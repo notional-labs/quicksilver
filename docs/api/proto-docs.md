@@ -311,7 +311,7 @@ MsgSubmitQueryResponse represents a message type to fulfil a query request.
 | `chain_id` | [string](#string) |  |  |
 | `query_id` | [string](#string) |  |  |
 | `result` | [bytes](#bytes) |  |  |
-| `proof` | [bytes](#bytes) |  |  |
+| `proof_ops` | [tendermint.crypto.ProofOps](#tendermint.crypto.ProofOps) |  |  |
 | `height` | [int64](#int64) |  |  |
 | `from_address` | [string](#string) |  |  |
 

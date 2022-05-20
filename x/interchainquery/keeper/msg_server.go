@@ -11,7 +11,6 @@ import (
 
 	commitmenttypes "github.com/cosmos/ibc-go/v3/modules/core/23-commitment/types"
 	"github.com/ingenuity-build/quicksilver/x/interchainquery/types"
-	tmcrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
 )
 
 type msgServer struct {
@@ -32,7 +31,7 @@ func (k msgServer) SubmitQueryResponse(goCtx context.Context, msg *types.MsgSubm
 	if found {
 		pathParts := strings.Split(q.QueryType, "/")
 		if pathParts[len(pathParts)-1] == "key" {
-			if msg.Proof == nil {
+			if msg.ProofOps == nil {
 				k.Logger(ctx).Error("KV lookup requires a proof")
 				return nil, fmt.Errorf("unable to validate proof. No proof submitted")
 			}
@@ -42,10 +41,7 @@ func (k msgServer) SubmitQueryResponse(goCtx context.Context, msg *types.MsgSubm
 			consensusState, _ := k.IBCKeeper.ClientKeeper.GetClientConsensusState(ctx, connection.ClientId, height)
 			clientState, _ := k.IBCKeeper.ClientKeeper.GetClientState(ctx, connection.ClientId)
 			path := commitmenttypes.NewMerklePath("/" + q.QueryType)
-
-			tmproofops := tmcrypto.ProofOps{}
-			_ = k.cdc.Unmarshal(msg.Proof, &tmproofops)
-			merkleProof, _ := commitmenttypes.ConvertProofs(&tmproofops)
+			merkleProof, _ := commitmenttypes.ConvertProofs(msg.ProofOps)
 
 			tmclientstate, _ := clientState.(*tmclienttypes.ClientState)
 			if err := merkleProof.VerifyMembership(tmclientstate.ProofSpecs, consensusState.GetRoot(), path, msg.Result); err != nil {
