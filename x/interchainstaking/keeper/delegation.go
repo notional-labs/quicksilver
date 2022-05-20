@@ -48,7 +48,7 @@ func (k *Keeper) WithdrawDelegationRewardsForResponse(ctx sdk.Context, zone type
 	var msgs []sdk.Msg
 
 	delegatorRewards := distrTypes.QueryDelegationTotalRewardsResponse{}
-	err := k.cdc.UnmarshalJSON(response, &delegatorRewards)
+	err := k.cdc.Unmarshal(response, &delegatorRewards)
 	if err != nil {
 		return err
 	}
