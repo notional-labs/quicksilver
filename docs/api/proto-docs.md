@@ -20,7 +20,6 @@
     - [DataPoint](#quicksilver.interchainquery.v1.DataPoint)
     - [GenesisState](#quicksilver.interchainquery.v1.GenesisState)
     - [Query](#quicksilver.interchainquery.v1.Query)
-    - [Query.QueryParametersEntry](#quicksilver.interchainquery.v1.Query.QueryParametersEntry)
   
 - [quicksilver/interchainquery/v1/messages.proto](#quicksilver/interchainquery/v1/messages.proto)
     - [MsgSubmitQueryResponse](#quicksilver.interchainquery.v1.MsgSubmitQueryResponse)
@@ -276,25 +275,9 @@ GenesisState defines the epochs module's genesis state.
 | `connection_id` | [string](#string) |  |  |
 | `chain_id` | [string](#string) |  |  |
 | `query_type` | [string](#string) |  |  |
-| `query_parameters` | [Query.QueryParametersEntry](#quicksilver.interchainquery.v1.Query.QueryParametersEntry) | repeated |  |
+| `request` | [bytes](#bytes) |  |  |
 | `period` | [string](#string) |  |  |
 | `last_height` | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="quicksilver.interchainquery.v1.Query.QueryParametersEntry"></a>
-
-### Query.QueryParametersEntry
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `key` | [string](#string) |  |  |
-| `value` | [string](#string) |  |  |
 
 
 
@@ -328,6 +311,7 @@ MsgSubmitQueryResponse represents a message type to fulfil a query request.
 | `chain_id` | [string](#string) |  |  |
 | `query_id` | [string](#string) |  |  |
 | `result` | [bytes](#bytes) |  |  |
+| `proof_ops` | [tendermint.crypto.ProofOps](#tendermint.crypto.ProofOps) |  |  |
 | `height` | [int64](#int64) |  |  |
 | `from_address` | [string](#string) |  |  |
 

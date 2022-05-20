@@ -1,5 +1,5 @@
 version: '3.8'
-services: 
+services:
   quicksilver:
     image: quicksilverzone/quicksilver:latest
     hostname: quicksilver
@@ -72,7 +72,7 @@ services:
       context: .
       dockerfile: Dockerfile.hermes
   icq:
-    image: quicksilverzone/interchain-queries:latest
+    image: quicksilverzone/icq:latest
     volumes:
       - ./data/icq:/icq/.icq
     command:

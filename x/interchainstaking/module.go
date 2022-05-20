@@ -21,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/ingenuity-build/quicksilver/x/interchainstaking/client/cli"
+	"github.com/ingenuity-build/quicksilver/x/interchainstaking/client/rest"
 	"github.com/ingenuity-build/quicksilver/x/interchainstaking/keeper"
 
 	//"github.com/ingenuity-build/quicksilver/x/interchainstaking/simulation"
@@ -83,7 +84,9 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 }
 
 // RegisterRESTRoutes registers the capability module's REST service handlers.
-func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {}
+func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
+	rest.RegisterRoutes(clientCtx, rtr)
+}
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {

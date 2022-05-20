@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	distrTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -111,7 +112,20 @@ func (im IBCModule) OnChanOpenAck(
 			if !found {
 				return fmt.Errorf("no registered zone for chain id: %s", query.GetChainId())
 			}
-			return k.SetAccountBalance(ctx, zone, query.QueryParameters["address"], args)
+
+			// unmarshal request
+			balanceQuery := bankTypes.QueryAllBalancesRequest{}
+			err := k.GetCodec().Unmarshal(query.Request, &balanceQuery)
+			if err == nil {
+				return err
+			}
+			return k.SetAccountBalance(ctx, zone, balanceQuery.Address, args)
+		}
+
+		balanceQuery := bankTypes.QueryAllBalancesRequest{Address: address}
+		bz, err := im.keeper.GetCodec().Marshal(&balanceQuery)
+		if err != nil {
+			return err
 		}
 
 		im.keeper.ICQKeeper.MakeRequest(
@@ -119,7 +133,7 @@ func (im IBCModule) OnChanOpenAck(
 			connectionId,
 			chainId,
 			"cosmos.bank.v1beta1.Query/AllBalances",
-			map[string]string{"address": address},
+			bz,
 			sdk.NewInt(int64(im.keeper.GetParam(ctx, types.KeyDepositInterval))),
 			types.ModuleName,
 			cb,
@@ -165,7 +179,20 @@ func (im IBCModule) OnChanOpenAck(
 			if !found {
 				return fmt.Errorf("no registered zone for chain id: %s", query.GetChainId())
 			}
-			return k.SetAccountBalance(ctx, zone, query.QueryParameters["address"], args)
+			// unmarshal request
+			balanceQuery := bankTypes.QueryAllBalancesRequest{}
+			err := k.GetCodec().Unmarshal(query.Request, &balanceQuery)
+			if err == nil {
+				return err
+			}
+
+			return k.SetAccountBalance(ctx, zone, balanceQuery.Address, args)
+		}
+
+		balanceQuery := bankTypes.QueryAllBalancesRequest{Address: address}
+		bz, err := im.keeper.GetCodec().Marshal(&balanceQuery)
+		if err != nil {
+			return err
 		}
 
 		im.keeper.ICQKeeper.MakeRequest(
@@ -173,7 +200,7 @@ func (im IBCModule) OnChanOpenAck(
 			connectionId,
 			chainId,
 			"cosmos.bank.v1beta1.Query/AllBalances",
-			map[string]string{"address": address},
+			bz,
 			sdk.NewInt(int64(im.keeper.GetParam(ctx, types.KeyDelegateInterval))),
 			types.ModuleName,
 			cb,

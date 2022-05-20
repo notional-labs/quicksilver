@@ -21,8 +21,11 @@ else
   rm -rf ${CHAIN_DIR}/hermes &> /dev/null
   rm -rf ${CHAIN_DIR}/icq &> /dev/null
 
-  TIME=$(date --date '-2 minutes' +%Y-%m-%dT%H:%m:00.00Z -u)
+  echo "Doing the thing..."
+  TIME=$(date --date '-2 minutes' +%Y-%m-%dT%H:%M:00Z -u)
   jq ".genesis_time = \"$TIME\"" ./${CHAIN_DIR}/backup/${CHAINID_1}/config/genesis.json > ./${CHAIN_DIR}/backup/${CHAINID_1}/config/genesis.json.new && mv ./${CHAIN_DIR}/backup/${CHAINID_1}/config/genesis.json{.new,}
+  jq ".genesis_time = \"$TIME\"" ./${CHAIN_DIR}/backup/${CHAINID_1}a/config/genesis.json > ./${CHAIN_DIR}/backup/${CHAINID_1}a/config/genesis.json.new && mv ./${CHAIN_DIR}/backup/${CHAINID_1}a/config/genesis.json{.new,}
+  jq ".genesis_time = \"$TIME\"" ./${CHAIN_DIR}/backup/${CHAINID_1}b/config/genesis.json > ./${CHAIN_DIR}/backup/${CHAINID_1}b/config/genesis.json.new && mv ./${CHAIN_DIR}/backup/${CHAINID_1}b/config/genesis.json{.new,}
 
   cp -fr ${CHAIN_DIR}/backup/${CHAINID_1} ${CHAIN_DIR}/${CHAINID_1}
   cp -fr ${CHAIN_DIR}/backup/${CHAINID_1}a ${CHAIN_DIR}/${CHAINID_1}a

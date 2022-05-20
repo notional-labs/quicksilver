@@ -2,8 +2,13 @@ package keeper
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v3/modules/core/23-commitment/types"
+	tmclienttypes "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
 	"github.com/ingenuity-build/quicksilver/x/interchainquery/types"
 )
 
@@ -23,11 +28,51 @@ func (k msgServer) SubmitQueryResponse(goCtx context.Context, msg *types.MsgSubm
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	q, found := k.GetQuery(ctx, msg.QueryId)
 	if found {
+		pathParts := strings.Split(q.QueryType, "/")
+		if pathParts[len(pathParts)-1] == "key" {
+			if msg.ProofOps == nil {
+				k.Logger(ctx).Error("KV lookup requires a proof")
+				return nil, fmt.Errorf("unable to validate proof. No proof submitted")
+			}
+			connection, _ := k.IBCKeeper.ConnectionKeeper.GetConnection(ctx, q.ConnectionId)
+
+			height := clienttypes.NewHeight(clienttypes.ParseChainID(q.ChainId), uint64(msg.Height)+1)
+			consensusState, found := k.IBCKeeper.ClientKeeper.GetClientConsensusState(ctx, connection.ClientId, height)
+
+			if !found {
+				k.Logger(ctx).Error("unable to fetch consensus state", "queryheight", msg.Height, "consensus height", height)
+				return nil, fmt.Errorf("unable to fetch consensus state")
+			}
+
+			clientState, found := k.IBCKeeper.ClientKeeper.GetClientState(ctx, connection.ClientId)
+			if !found {
+				k.Logger(ctx).Error("unable to fetch client state", "queryheight", msg.Height, "consensus height", height)
+				return nil, fmt.Errorf("unable to fetch client state")
+			}
+
+			path := commitmenttypes.NewMerklePath([]string{pathParts[1], string(q.Request)}...)
+
+			merkleProof, err := commitmenttypes.ConvertProofs(msg.ProofOps)
+			if err != nil {
+				k.Logger(ctx).Error("error converting proofs")
+			}
+
+			tmclientstate, ok := clientState.(*tmclienttypes.ClientState)
+			if !ok {
+				k.Logger(ctx).Error("Not ok!", "cs", clientState)
+			}
+
+			if err := merkleProof.VerifyMembership(tmclientstate.ProofSpecs, consensusState.GetRoot(), path, msg.Result); err != nil {
+				k.Logger(ctx).Error("Unable to verify proof", "error", err, "height", height, "path", path, "data", string(q.Request))
+				return nil, fmt.Errorf("unable to verify proof: %s", err)
+			}
+			k.Logger(ctx).Info("Proof validated!", "module", types.ModuleName, "queryId", q.Id)
+		}
 		for _, module := range k.callbacks {
 			if module.Has(msg.QueryId) {
 				err := module.Call(ctx, msg.QueryId, msg.Result, q)
 				if err != nil {
-					k.Logger(ctx).Error("Error in callback", "error", err, "msg", msg.QueryId, "result", msg.Result, "type", q.QueryType, "params", q.QueryParameters)
+					k.Logger(ctx).Error("Error in callback", "error", err, "msg", msg.QueryId, "result", msg.Result, "type", q.QueryType, "params", q.Request)
 					return nil, err
 				}
 			}

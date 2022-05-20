@@ -463,7 +463,7 @@ func (k *Keeper) GetValidatorForToken(ctx sdk.Context, delegatorAddress string, 
 
 func (k *Keeper) UpdateDelegationRecordsForAddress(ctx sdk.Context, zone types.RegisteredZone, delegatorAddress string, args []byte) error {
 	var response stakingtypes.QueryDelegatorDelegationsResponse
-	err := k.cdc.UnmarshalJSON(args, &response)
+	err := k.cdc.Unmarshal(args, &response)
 	if err != nil {
 		return err
 	}
@@ -553,12 +553,19 @@ func (k *Keeper) HandleWithdrawRewards(ctx sdk.Context, msg sdk.Msg, amount sdk.
 		// interface assertion
 		var cb Callback = DistributeRewardsFromWithdrawAccount
 
+		balanceQuery := banktypes.QueryAllBalancesRequest{Address: zone.WithdrawalAddress.Address}
+		bz, err := k.cdc.Marshal(&balanceQuery)
+		if err != nil {
+			return err
+		}
+
 		// total rewards balance withdrawn
 		k.ICQKeeper.MakeRequest(
 			ctx,
 			zone.ConnectionId,
-			zone.ChainId, "cosmos.bank.v1beta1.Query/AllBalances",
-			map[string]string{"address": zone.WithdrawalAddress.Address},
+			zone.ChainId,
+			"cosmos.bank.v1beta1.Query/AllBalances",
+			bz,
 			sdk.NewInt(int64(-1)),
 			types.ModuleName,
 			cb,
@@ -578,7 +585,7 @@ func DistributeRewardsFromWithdrawAccount(k Keeper, ctx sdk.Context, args []byte
 	// query all balances as chains can accumulate fees in different denoms.
 	withdrawBalance := banktypes.QueryAllBalancesResponse{}
 
-	err := k.cdc.UnmarshalJSON(args, &withdrawBalance)
+	err := k.cdc.Unmarshal(args, &withdrawBalance)
 	if err != nil {
 		return err
 	}
