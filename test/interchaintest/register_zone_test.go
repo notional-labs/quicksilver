@@ -13,6 +13,7 @@ import (
 	"github.com/strangelove-ventures/interchaintest/v7"
 	"github.com/strangelove-ventures/interchaintest/v7/chain/cosmos"
 	"github.com/strangelove-ventures/interchaintest/v7/ibc"
+	"github.com/strangelove-ventures/interchaintest/v7/relayer"
 	"github.com/strangelove-ventures/interchaintest/v7/testreporter"
 	"github.com/strangelove-ventures/interchaintest/v7/testutil"
 	"github.com/stretchr/testify/require"
@@ -73,7 +74,7 @@ func TestRegisterZone(t *testing.T) {
 	quicksilverd, juno := chains[0].(*cosmos.CosmosChain), chains[1].(*cosmos.CosmosChain)
 
 	// Get a relayer instance
-	r := interchaintest.NewBuiltinRelayerFactory(ibc.Hermes, zaptest.NewLogger(t)).Build(t, client, network)
+	r := interchaintest.NewBuiltinRelayerFactory(ibc.CosmosRly, zaptest.NewLogger(t), relayer.CustomDockerImage("ghcr.io/notional-labs/cosmos-relayer", "nguyen-v2.3.1", "1000:1000")).Build(t, client, network)
 
 	// Build the network; spin up the chains and configure the relayer
 	t.Logf("NewInterchain")
