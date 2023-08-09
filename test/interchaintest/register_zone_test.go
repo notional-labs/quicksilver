@@ -123,10 +123,6 @@ func TestRegisterZone(t *testing.T) {
 	err = r.GeneratePath(ctx, eRep, quicksilverd.Config().ChainID, juno.Config().ChainID, pathQuicksilverJuno)
 	require.NoError(t, err)
 
-	// Create new clients
-	err = r.CreateClients(ctx, eRep, pathQuicksilverJuno, ibc.CreateClientOptions{TrustingPeriod: "330h"})
-	require.NoError(t, err)
-
 	// Create a new connection
 	err = r.CreateConnections(ctx, eRep, pathQuicksilverJuno)
 	require.NoError(t, err)

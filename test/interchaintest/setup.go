@@ -20,6 +20,12 @@ var (
 		UidGid:     "1025:1025",
 	}
 
+	IcaImage = ibc.DockerImage{
+		Repository: "quicksilverzone/testzone",
+		Version:    "latest",
+		UidGid:     "1025:1025",
+	}
+
 	XccLookupImage = ibc.DockerImage{
 		Repository: "quicksilverzone/xcclookup",
 		Version:    "v0.4.3",
