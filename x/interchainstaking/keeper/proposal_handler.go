@@ -21,6 +21,7 @@ import (
 // HandleRegisterZoneProposal is a handler for executing a passed community spend proposal.
 func (k *Keeper) HandleRegisterZoneProposal(ctx sdk.Context, p *types.RegisterZoneProposal) error {
 	// get chain id from connection
+	// println("llllll:", p.ConnectionId)
 	chainID, err := k.GetChainID(ctx, p.ConnectionId)
 	if err != nil {
 		return fmt.Errorf("unable to obtain chain id: %w", err)

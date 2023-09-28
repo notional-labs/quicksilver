@@ -92,9 +92,10 @@ func (suite *KeeperTestSuite) setupTestZones() {
 
 	quicksilver := suite.GetQuicksilverApp(suite.chainA)
 	ctx := suite.chainA.GetContext()
-
+	// println("ccccc", proposal.ConnectionId)
 	err := quicksilver.InterchainstakingKeeper.HandleRegisterZoneProposal(ctx, proposal)
 	suite.NoError(err)
+	// println("qua111")
 
 	zone, found := quicksilver.InterchainstakingKeeper.GetZone(suite.chainA.GetContext(), suite.chainB.ChainID)
 	suite.True(found)

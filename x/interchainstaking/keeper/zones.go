@@ -121,6 +121,7 @@ func (k *Keeper) AllZones(ctx sdk.Context) []types.Zone {
 func (k *Keeper) GetZoneFromContext(ctx sdk.Context) (*types.Zone, error) {
 	chainID, err := k.GetChainIDFromContext(ctx)
 	if err != nil {
+		println("78")
 		return nil, fmt.Errorf("unable to fetch zone from context: %w", err)
 	}
 	zone, found := k.GetZone(ctx, chainID)

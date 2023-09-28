@@ -447,6 +447,7 @@ func (k *Keeper) GetChainID(ctx sdk.Context, connectionID string) (string, error
 func (k *Keeper) GetChainIDFromContext(ctx sdk.Context) (string, error) {
 	connectionID := ctx.Context().Value(utils.ContextKey("connectionID"))
 	if connectionID == nil {
+		println("nilll")
 		return "", errors.New("connectionID not in context")
 	}
 

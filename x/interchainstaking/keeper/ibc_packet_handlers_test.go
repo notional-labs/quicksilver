@@ -2389,6 +2389,46 @@ func (suite *KeeperTestSuite) TestReceiveAckForBeginRedelegateNilCompletion() {
 	suite.Equal(complete.Unix(), afterTarget.RedelegationEnd)
 	suite.Equal(beforeTarget.Amount.Add(redelegate.Amount), afterTarget.Amount)
 }
+func (suite *KeeperTestSuite) TestHandleCompleteSend() {
+	suite.SetupTest()
+	suite.setupTestZones()
+
+	quicksilver := suite.GetQuicksilverApp(suite.chainA)
+	ctx := suite.chainA.GetContext()
+	zone, found := quicksilver.InterchainstakingKeeper.GetZone(ctx, suite.chainB.ChainID)
+	if !found {
+		suite.Fail("unable to retrieve zone for test")
+	}
+
+	// ///////
+
+	quicksilver.InterchainstakingKeeper.IBCKeeper.ChannelKeeper.SetChannel(ctx, "transfer", "channel-0", TestChannel)
+
+	cnID := ctx.Context().Value("connection-0")
+
+	cchain, err := quicksilver.InterchainstakingKeeper.GetChainID(ctx, "connection-0")
+	suite.NoError(err)
+	con := ctx.Value(utils.ContextKey("connectionID"))
+
+	println("connectID11:", con)
+	println("mau:", cchain)
+	println("chainA:", suite.chainA.ChainID)
+	println("chainB:", suite.chainB.ChainID)
+	println("connectID:", cnID)
+
+	complete := time.Now().UTC()
+
+	sendMsg := banktypes.MsgSend{
+		FromAddress: "",
+		ToAddress:   "",
+		Amount:      sdk.NewCoins(sdk.NewCoin(zone.BaseDenom, sdk.NewInt(2000))),
+	}
+
+	// testCase :=
+
+	err = quicksilver.InterchainstakingKeeper.HandleCompleteSend(ctx, &sendMsg, fmt.Sprintf("batch/%d", complete.Unix()))
+	suite.NoError(err)
+}
 
 func (suite *KeeperTestSuite) TestHandleMaturedUbondings() {
 	hash1 := randomutils.GenerateRandomHashAsHex(32)

@@ -370,11 +370,10 @@ func (k *Keeper) HandleCompleteSend(ctx sdk.Context, msg sdk.Msg, memo string) e
 	}
 
 	// get zone
-	zone, err := k.GetZoneFromContext(ctx)
-	if err != nil {
-		err = fmt.Errorf("2: %w", err)
-		k.Logger(ctx).Error(err.Error())
-		return err
+	zone, found := k.GetZoneForWithdrawalAccount(ctx, sMsg.FromAddress)
+	// zoneeee, err := k.GetZoneForAccount()
+	if !found {
+		return fmt.Errorf("zone not found for withdrawal account %s", sMsg.FromAddress)
 	}
 
 	// checks here are specific to ensure future extensibility;
@@ -388,7 +387,7 @@ func (k *Keeper) HandleCompleteSend(ctx sdk.Context, msg sdk.Msg, memo string) e
 	case zone.IsDelegateAddress(sMsg.ToAddress) && zone.DepositAddress.Address == sMsg.FromAddress:
 		return k.handleSendToDelegate(ctx, zone, sMsg, memo)
 	default:
-		err = fmt.Errorf("unexpected completed send (2) from %s to %s (amount: %s)", sMsg.FromAddress, sMsg.ToAddress, sMsg.Amount)
+		err := fmt.Errorf("unexpected completed send (2) from %s to %s (amount: %s)", sMsg.FromAddress, sMsg.ToAddress, sMsg.Amount)
 		k.Logger(ctx).Error(err.Error())
 		return err
 	}
